@@ -13,4 +13,23 @@
 //      npm install and npm start shortcuts and include a package.json file
 //          - See https://docs.npmjs.com/creating-a-package-json-file
 
-console.log("Hello World I'm the backend server")
+
+const express = require('express');
+const mysql = require('./mysql');
+const app = express();
+const port = process.env.PORT;
+
+
+app.get('/test', async (req,res) => {
+    try {
+        await mysql.query('SELECT *');
+        res.send('successful');
+    } catch (err) {
+        res.status(404).send('failed');
+    }
+
+});
+
+app.listen(port, () => {
+    console.log('server is running');
+})
