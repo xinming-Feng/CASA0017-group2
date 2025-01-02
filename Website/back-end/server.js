@@ -15,21 +15,47 @@
 
 
 const express = require('express');
-const mysql = require('./mysql');
+const fs = require('fs');
+const path = require('path');
+const csv = require('csv-parser'); //csv-parser：npm install csv-parser
+
 const app = express();
-const port = process.env.PORT;
+const port = 3000;
+
+let data = [];
+
+fs.createReadStream(path.join(__dirname, './GiGL_SpacesToVisit.csv'))
+  .pipe(csv())
+  .on('data', (row) => {
+    data.push(row);
+  })
+  .on('end', () => {
+    console.log('CSV file successfully processed');
+    console.log('Data loaded:', data);
+
+  });
 
 
-app.get('/test', async (req,res) => {
-    try {
-        await mysql.query('SELECT *');
-        res.send('successful');
-    } catch (err) {
-        res.status(404).send('failed');
-    }
-
+app.get('/test', async (req, res) => {
+  try {
+    res.send('successful');
+  } catch (err) {
+    res.status(404).send('failed');
+  }
 });
 
+console.log('Data loaded:', data);
+
+
+app.get('/data', (req, res) => {
+    if (data.length === 0) {
+        res.status(500).send('Data is not loaded yet.');
+      } else {
+        res.json(data);
+      }
+});
+
+
 app.listen(port, '0.0.0.0', () => {
-    console.log('server is running');
-})
+  console.log('Server is running');
+});
